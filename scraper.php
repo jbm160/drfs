@@ -51,8 +51,8 @@ function getCategories($d){
 }
 
 function getChildren($url,$path) {
-	global $cats, $e;
-	$e->load(scraperwiki::scrape($url));
+	global $baseurl, $cats, $e;
+	$e->load(scraperwiki::scrape($baseurl . $url));
 	$children = $e->find('#subCats > li');
 	for ($x = 1; $x < count($children); $x++) {
 		$childname = $children[$x]->find('a > div',0)->innertext;
@@ -65,8 +65,8 @@ function getChildren($url,$path) {
 }
 
 function getProducts($url, $path) {
-	global $p, $c;
-	$c->load(scraperwiki::scrape($url));
+	global $p, $c, $baseurl;
+	$c->load(scraperwiki::scrape($baseurl . $url));
 	$prods = $c->find('div.product2014item:not(.product2014cattab)');
 	if (count($prods) == 0) {
 		echo "No products found at " . $url . "\n";
