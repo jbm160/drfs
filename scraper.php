@@ -68,19 +68,21 @@ function getProducts($url, $path) {
 	global $p, $c, $baseurl;
 	$c->load(scraperwiki::scrape($baseurl . $url));
 echo "Looking for products: " . $baseurl . $url . "\n";
-	$prods = $c->find('div.product2014item[!class=product2014cattab]');
-$str = var_export($prods);
-$str2 = $c;
+	$prods = $c->find('div.product2014item');
+//$str = var_export($prods);
+//$str2 = $c;
 //echo "\$prods = " . $str . "\n";
 //echo  "HTML: " . $str2 . "\n";
 	if (count($prods) == 0) {
 		echo "No products found at " . $url . "\n";
 	} else {
 		foreach ($prods as $prod) {
-			$prodname = $prod->find('a.product_link > div',0)->innertext;
-			$produrl = $prod->find('a',0)->href;
-			fputcsv($p, array($prodname,$path,$produrl));
-			"Saved product: " . $prodname . "\n";
+			if (strpos($prod->class,"product2014cattab") === FALSE) {
+				$prodname = $prod->find('a.product_link > div',0)->innertext;
+				$produrl = $prod->find('a',0)->href;
+				fputcsv($p, array($prodname,$path,$produrl));
+				"Saved product: " . $prodname . "\n";
+			}
 		}
 		if (!is_null($c->find('div.pagnbtn',0))) {
 			getProducts($c->find('div.pagnbtn > a',0)->href, $path);
