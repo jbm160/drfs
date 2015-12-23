@@ -67,7 +67,7 @@ function getChildren($url,$path) {
 function getProducts($url, $path) {
 	global $p, $c, $baseurl;
 	$c->load(scraperwiki::scrape($baseurl . $url));
-echo "Looking for products: " . $baseurl . $url . "\n";
+echo "Looking for products in " . $path . "\n";
 	$prods = $c->find('div.product2014item');
 //$str = var_export($prods);
 //$str2 = $c;
@@ -81,7 +81,7 @@ echo "Looking for products: " . $baseurl . $url . "\n";
 				$prodname = $prod->find('a.product_link > div',0)->innertext;
 				$produrl = $prod->find('a',0)->href;
 				fputcsv($p, array($prodname,$path,$produrl));
-				"Saved product: " . $prodname . "\n";
+				echo "Saved product: " . $prodname . "\n";
 			}
 		}
 		if (!is_null($c->find('div.pagnbtn',0))) {
