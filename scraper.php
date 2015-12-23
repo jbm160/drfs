@@ -68,11 +68,11 @@ function getProducts($url, $path) {
 	global $p, $c, $baseurl;
 	$c->load(scraperwiki::scrape($baseurl . $url));
 echo "Looking for products: " . $baseurl . $url . "\n";
-	$prods = $c->find('div.product2014item:not(.product2014cattab)');
+	$prods = $c->find('div.product2014item[!class=product2014cattab]');
 $str = var_export($prods);
 $str2 = $c;
-echo "\$prods = " . $str . "\n";
-echo  "HTML: " . $str2 . "\n";
+//echo "\$prods = " . $str . "\n";
+//echo  "HTML: " . $str2 . "\n";
 	if (count($prods) == 0) {
 		echo "No products found at " . $url . "\n";
 	} else {
