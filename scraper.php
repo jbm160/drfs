@@ -13,7 +13,7 @@ if ($local) {
 //
 // // Read in a page
 $baseurl="http://www.drsfostersmith.com";
-$f = fopen("./categories.csv", "w+");
+//$f = fopen("./categories.csv", "w+");
 $p = fopen("./prodlist.csv", "w+");
 $html = $baseurl . "/fish-supplies/pr/c/3578";
 $d = new simple_html_dom();
@@ -23,10 +23,10 @@ $c = new simple_html_dom();
 //echo $d->innertext;
 $cats = array();
 getCategories($d);
-foreach ($cats as $cat) {
-	fputcsv($f,$cat);
-}
-fclose($f);
+//foreach ($cats as $cat) {
+//	fputcsv($f,$cat);
+//}
+//fclose($f);
 fclose($p);
 
 // parse the categories and save to database
@@ -44,7 +44,7 @@ function getCategories($d){
   	$caturl = $top->find('a',0)->href;
   	$catpath = "|";
   	$cats[] = array($catname,$catpath,$caturl);
-  	echo "Saved category /" . $catname . "\n";
+//  	echo "Saved category /" . $catname . "\n";
   	getProducts($caturl, $catpath . $catname);
   	getChildren($caturl, $catpath . $catname);
   }
@@ -59,7 +59,7 @@ function getChildren($url,$path) {
 		$childpath = $path . "|";
 		$childurl = $children[$x]->find('a',0)->href;
 		$cats[] = array($childname,$childpath,$childurl);
-		echo "Saved category " . $childpath . $childname . "\n";
+//		echo "Saved category " . $childpath . $childname . "\n";
 		getProducts($childurl, $childpath . $childname);
 	}
 }
@@ -67,7 +67,10 @@ function getChildren($url,$path) {
 function getProducts($url, $path) {
 	global $p, $c, $baseurl;
 	$c->load(scraperwiki::scrape($baseurl . $url));
+echo "Looking for products: " . $baseurl . $url . "\n";
 	$prods = $c->find('div.product2014item:not(.product2014cattab)');
+$str = var_export($prods);
+echo "\$prods = " . $str . "\n";
 	if (count($prods) == 0) {
 		echo "No products found at " . $url . "\n";
 	} else {
