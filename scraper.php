@@ -12,11 +12,14 @@ if ($local) {
 
 //
 // // Read in a page
-$baseurl="http://www.bulkreefsupply.com";
+$baseurl="http://www.drsfostersmith.com";
 $f = fopen("./categories.csv", "w+");
-$html = $baseurl . "/index.php";
+$p = fopen("./prodlist.csv", "w+");
+$html = $baseurl . "/fish-supplies/pr/c/3578";
 $d = new simple_html_dom();
 $d->load(scraperwiki::scrape($html));
+$e = new simple_html_dom();
+$c = new simple_html_dom();
 //echo $d->innertext;
 $cats = array();
 getCategories($d);
@@ -24,6 +27,7 @@ foreach ($cats as $cat) {
 	fputcsv($f,$cat);
 }
 fclose($f);
+fclose($p);
 
 // parse the categories and save to database
 // database columns:
@@ -32,40 +36,52 @@ fclose($f);
 //   URL
 //   
 function getCategories($d){
-  global $baseurl, $f, $local, $cats;
-  $topcat = $d->find('ul[id=nav] > li.level0');
+  global $baseurl, $f, $p, $local, $cats;
+  $topcat = $d->find('#e1' > li);
   foreach ($topcat as $top) {
 //echo $top->innertext . "\n";
-  	$catname = $top->find('span.cat-title-sub-menu',0)->innertext;
+  	$catname = $top->find('a > div',0)->innertext;
   	$caturl = $top->find('a',0)->href;
-  	$cats[] = array($catname,"|",$caturl);
-  	$l1 = $top->find('ul.level0 > li.level1');
-  	foreach ($l1 as $lev1) {
-  		$l1name = $lev1->find('a > span',0)->innertext;
-  		$l1path = $catname . "|";
-  		$l1url = $lev1->find('a',0)->href;
-  		$cats[] = array($l1name,$l1path,$l1url);
-  		if (strpos($lev1->class,"parent") !== FALSE) {
-  			getChildren($lev1,$l1path . $l1name);
-  		}
-  	}
+  	$catpath = "|";
+  	$cats[] = array($catname,$catpath,$caturl);
+  	echo "Saved category /" . $catname . "\n";
+  	getProducts($caturl, $catpath . $catname);
+  	getChildren($caturl, $catpath . $catname);
   }
 }
 
-function getChildren($d,$path) {
-	global $cats;
-	$children = $d->find('ul li');
-	foreach ($children as $child) {
-		$childname = $child->find('a > span',0)->innertext;
+function getChildren($url,$path) {
+	global $cats, $e;
+	$e->load(scraperwiki::scrape($url));
+	$children = $e->find('#subCats > li');
+	for ($x = 1; $x < count($children); $x++)) {
+		$childname = $children[$x]->find('a > div',0)->innertext;
 		$childpath = $path . "|";
-		$childurl = $child->find('a',0)->href;
+		$childurl = $children[$x]->find('a',0)->href;
 		$cats[] = array($childname,$childpath,$childurl);
-		if (strpos($child->class,"parent") !== FALSE) {
-			getChildren($child,$childpath . $childname);
-		}
+		echo "Saved category " . $childpath . $childname . "\n";
+		getProducts($childurl, $childpath . $childname);
 	}
 }
 
+function getProducts($url, $path) {
+	global $p, $c;
+	$c->load(scraperwiki::scrape($url));
+	$prods = $c->find('div.product2014item:not(.product2014cattab)');
+	if (count($prods) == 0) {
+		echo "No products found at " . $url . "\n";
+	} else {
+		foreach ($prods as $prod) {
+			$prodname = $prod->find('a.product_link > div',0)->innertext;
+			$produrl = $prod->find('a',0)->href;
+			fputcsv($p, array($prodname,$path,$produrl));
+			"Saved product: " . $prodname . "\n";
+		}
+		if (!is_null($c->find('div.pagnbtn',0))) {
+			getProducts($c->find('div.pagnbtn > a',0)->href, $path);
+		}
+	}
+}
 /**
 <li class="level0 nav-1 level-top first parent">
 	<a href="http://www.bulkreefsupply.com/bulk-reverse-osmosis-filters-systems.html" class="level-top">
