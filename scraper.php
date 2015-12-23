@@ -37,7 +37,7 @@ fclose($p);
 //   
 function getCategories($d){
   global $baseurl, $f, $p, $local, $cats;
-  $topcat = $d->find('#e1' > li);
+  $topcat = $d->find('#e1 > li');
   foreach ($topcat as $top) {
 //echo $top->innertext . "\n";
   	$catname = $top->find('a > div',0)->innertext;
@@ -54,7 +54,7 @@ function getChildren($url,$path) {
 	global $cats, $e;
 	$e->load(scraperwiki::scrape($url));
 	$children = $e->find('#subCats > li');
-	for ($x = 1; $x < count($children); $x++)) {
+	for ($x = 1; $x < count($children); $x++) {
 		$childname = $children[$x]->find('a > div',0)->innertext;
 		$childpath = $path . "|";
 		$childurl = $children[$x]->find('a',0)->href;
